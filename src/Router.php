@@ -2,12 +2,14 @@
 
 namespace Laasti\Directions;
 
+use FastRoute\Dispatcher;
+
 class Router implements RouterInterface
 {
 
     /**
      *
-     * @var FastRoute\Dispatcher
+     * @var Dispatcher
      */
     protected $dispatcher;
 
@@ -16,17 +18,11 @@ class Router implements RouterInterface
      * @var RouteCollection
      */
     protected $routes;
-    
-    /**
-     *
-     * @var \Laasti\Peels\StackBuilderInterface
-     */
-    protected $stackBuilder;
 
-    public function __construct(RouteCollection $routes = null, \Laasti\Peels\StackBuilderInterface $stackBuilder = null)
+
+    public function __construct(RouteCollection $routes = null)
     {
         $this->routes = $routes;
-        $this->stackBuilder = $stackBuilder;
     }
     
     public function getDispatcher()
@@ -38,14 +34,8 @@ class Router implements RouterInterface
     {
         return $this->routes;
     }
-
-    public function getStackBuilder()
-    {
-        return $this->stackBuilder;
-    }
-
-        
-    public function setDispatcher(FastRoute\Dispatcher $dispatcher)
+  
+    public function setDispatcher(Dispatcher $dispatcher)
     {
         $this->dispatcher = $dispatcher;
         return $this;
@@ -57,17 +47,11 @@ class Router implements RouterInterface
         return $this;
     }
 
-    public function setStackBuilder(\Laasti\Peels\StackBuilderInterface $stackBuilder)
-    {
-        $this->stackBuilder = $stackBuilder;
-        return $this;
-    }
-
     /**
      * 
-     * @param type $httpMethod
-     * @param type $route
-     * @param type $handler
+     * @param string|array $httpMethod
+     * @param string $route
+     * @param mixed $handler
      * @return RouteCollection
      */
     public function add($httpMethod, $route, $handler)
@@ -77,44 +61,34 @@ class Router implements RouterInterface
     
     /**
      * 
-     * @param \Psr\Http\Message\ServerRequestInterface $request
+     * @param string HTTP Method
+     * @param string
      * @return Route
      */
-    public function find(\Psr\Http\Message\ServerRequestInterface $request)
+    public function find($httpMethod, $route)
     {
-        return $this->dispatcher->dispatch($request->getMethod(), $request->getUri()->getPath());
+        return $this->dispatcher->dispatch($httpMethod, $route);
+    }
+    
+    /**
+     *
+     * @param string HTTP Method
+     * @param string
+     * @return mixed
+     */
+    public function findAndDispatch($httpMethod, $route)
+    {
+        return $this->dispatch($this->find($httpMethod, $route));
     }
     
     /**
      * 
-     * @param \Psr\Http\Message\ServerRequestInterface $request
-     * @param \Psr\Http\Message\ResponseInterface $response
-     * @return Response
+     * @param Route $route
+     * @return mixed
      */
-    public function findAndDispatch(\Psr\Http\Message\ServerRequestInterface $request, \Psr\Http\Message\ResponseInterface $response)
+    public function dispatch(Route $route)
     {
-        return $this->dispatch($this->find($request), $response);
-    }
-    
-    /**
-     * 
-     * @param \Laasti\Directions\Route $route
-     * @param \Psr\Http\Message\ServerRequestInterface $request
-     * @param \Psr\Http\Message\ResponseInterface $response
-     * @return Response
-     */
-    public function dispatch(Route $route, \Psr\Http\Message\ServerRequestInterface $request, \Psr\Http\Message\ResponseInterface $response)
-    {
-        $request = $request->withAttribute('_route', $route);
-        foreach ($route->getMiddlewares() as $middleware) {
-            $this->stackBuilder->push($middleware);
-        }
-        foreach ($route->getAttributes() as $name => $value) {
-            $request = $request->withAttribute($name, $value);
-        }
-        $this->stackBuilder->push($route->getHandler());
-        $runner = $this->stackBuilder->create();
-        return $runner->run($request, $response);
+        return $route->callStrategy();
     }
 
 }

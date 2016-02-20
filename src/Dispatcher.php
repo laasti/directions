@@ -3,12 +3,16 @@
 
 namespace Laasti\Directions;
 
+use FastRoute\Dispatcher\GroupCountBased;
+use Laasti\Directions\Exceptions\MethodNotAllowedException;
+use Laasti\Directions\Exceptions\RouteNotFoundException;
+
 /**
  * Description of Dispatcher
  *
  * @author Sonia
  */
-class Dispatcher extends \FastRoute\Dispatcher\GroupCountBased
+class Dispatcher extends GroupCountBased
 {
     
     protected $routes;
@@ -21,19 +25,19 @@ class Dispatcher extends \FastRoute\Dispatcher\GroupCountBased
     public function dispatch($httpMethod, $uri)
     {
         list($this->staticRouteMap, $this->variableRouteData) = $this->routes->getData();
-        list($result, $routeOrMethods, $data) = parent::dispatch($httpMethod, $uri);
+        $result = parent::dispatch($httpMethod, $uri);
         
-        switch ($result) {
-            case \FastRoute::NOT_FOUND:
+        switch ($result[0]) {
+            case self::NOT_FOUND:
                 throw new RouteNotFoundException;
-            case \FastRoute::MEtho:
-                throw new MethodNotAllowedException((array) $routeOrMethods);
+            case self::METHOD_NOT_ALLOWED:
+                throw new MethodNotAllowedException((array) $result[1]);
         }
         
-        foreach ((array)$data as $name => $value) {
-            $routeOrMethods->setAttribute($name, $value);
+        foreach ((array)$result[2] as $name => $value) {
+            $result[1]->setAttribute($name, $value);
         } 
         
-        return $routeOrMethods;
+        return $result[1];
     }
 }

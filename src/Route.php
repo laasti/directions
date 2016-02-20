@@ -3,6 +3,8 @@
 
 namespace Laasti\Directions;
 
+use Laasti\Directions\Strategies\StrategyInterface;
+
 /**
  * Description of Route
  *
@@ -16,11 +18,18 @@ class Route
     protected $middlewares = [];
     protected $attributes = [];
     
-    public function __construct($httpMethod, $route, $handler)
+    /**
+     *
+     * @var StrategyInterface
+     */
+    protected $strategy;
+    
+    public function __construct($httpMethod, $route, $handler, StrategyInterface $strategy)
     {
         $this->httpMethod = $httpMethod;
         $this->route = $route;
         $this->handler = $handler;
+        $this->strategy = $strategy;
     }
     
     public function getHttpMethod()
@@ -47,6 +56,22 @@ class Route
     {
         $this->middlewares = $middlewares;
         
+        return $this;
+    }
+
+    public function getStrategy()
+    {
+        return $this->strategy;
+    }
+
+    public function calltrategy()
+    {
+        return $this->strategy->callRoute($this);
+    }
+
+    public function setStrategy(StrategyInterface $strategy)
+    {
+        $this->strategy = $strategy;
         return $this;
     }
     

@@ -1,6 +1,6 @@
 <?php
 
-namespace Laasti\Directions;
+namespace Laasti\Directions\Exceptions;
 
 class MethodNotAllowedException extends \RuntimeException
 {

@@ -3,10 +3,6 @@
 
 namespace Laasti\Directions;
 
-/**
- *
- * @author Sonia
- */
 interface RouterInterface
 {
     

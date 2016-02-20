@@ -2,6 +2,24 @@
 
 A HTTP message router using nikic's FastRoute
 
+## Features
+
+* Use any callable as a controller, or use a Interop container value
+* Use strategies to change how your routes are handled
+* Add middlewares (callables) to your routes if your strategy supports it (requires laasti/peels)
+* Personalize routes with attributes to help passing parameters to your controllers. Attributes are automatically distributes to the request's attributes
+
+
+## Todo
+
+* League container service provider
+* RouterAwareTrait with inflector
+* Name routes
+* Group routes
+* Generate URLs from routes
+* Routes across multiple domains
+* Add your own parsing formats ie hex
+
 ## Installation
 
 ```
@@ -22,7 +40,7 @@ TODO
 
 ## History
 
-See CHANGELOG.md for more information.
+See Github's releases
 
 ## Credits
 
