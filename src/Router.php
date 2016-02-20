@@ -20,9 +20,10 @@ class Router implements RouterInterface
     protected $routes;
 
 
-    public function __construct(RouteCollection $routes = null)
+    public function __construct(RouteCollection $routes = null, \Laasti\Directions\Dispatcher $dispatcher = null)
     {
         $this->routes = $routes;
+        $this->dispatcher = $dispatcher ?: new Dispatcher($routes);
     }
     
     public function getDispatcher()
@@ -44,6 +45,7 @@ class Router implements RouterInterface
     public function setRoutes(RouteCollection $routes)
     {
         $this->routes = $routes;
+        $this->dispatcher = new Dispatcher($routes);
         return $this;
     }
 
