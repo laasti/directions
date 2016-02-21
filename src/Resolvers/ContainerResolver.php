@@ -22,9 +22,9 @@ class ContainerResolver implements ResolverInterface
         if (is_string($value) && preg_match(self::CLASS_METHOD_EXTRACTOR, $value, $matches)) {
             list($matchedString, $class, $method) = $matches;
             if ($this->container instanceof ContainerInterface && $this->container->has($class)) {
-                return [$this->container->get($value), $method];
+                return [$this->container->get($class), $method];
             }
-        } else if ($this->container instanceof ContainerInterface && $this->container->has($value)) {
+        } else if (is_string($value) && $this->container instanceof ContainerInterface && $this->container->has($value)) {
             return $this->container->get($value);
         }
 

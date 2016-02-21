@@ -64,7 +64,7 @@ class Route
         return $this->strategy;
     }
 
-    public function calltrategy()
+    public function callStrategy()
     {
         return $this->strategy->callRoute($this);
     }

@@ -9,7 +9,7 @@ use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use RuntimeException;
 
-class PeelsStrategy implements StrategyInterface
+class PeelsStrategy implements StrategyInterface, HttpAwareStrategyInterface
 {
     /**
      *

@@ -22,7 +22,7 @@ class LeagueDirectionsProvider extends \League\Container\ServiceProvider\Abstrac
     protected $defaultConfig = [
         'resolver' => 'Laasti\Directions\Resolvers\ResolverInterface',
         'strategy' => 'Laasti\Directions\Strategies\StrategyInterface',
-        'router' => 'Laasti\Directions\RouterInterface',
+        'router' => 'Laasti\Directions\Router',
         'routes' => []
     ];
 
@@ -32,16 +32,17 @@ class LeagueDirectionsProvider extends \League\Container\ServiceProvider\Abstrac
         $this->getContainer()->add('Laasti\Directions\Resolvers\CallableResolver', 'Laasti\Directions\Resolvers\ContainerResolver');
 
         if ($this->getContainer()->has('Interop\Container\ContainerInterface')) {
+            $this->getContainer()->get('Interop\Container\ContainerInterface');
             $this->getContainer()->add('Laasti\Directions\Resolvers\ResolverInterface', 'Laasti\Directions\Resolvers\ContainerResolver')->withArgument('Interop\Container\ContainerInterface');
         } else {
             $this->getContainer()->add('Laasti\Directions\Resolvers\ResolverInterface', 'Laasti\Directions\Resolvers\CallableResolver');
         }
 
         $this->getContainer()->add('Laasti\Directions\Strategies\HttpMessageStrategy', 'Laasti\Directions\Strategies\HttpMessageStrategy');
-        $this->getContainer()->add('Laasti\Directions\Strategies\PeelsStrategy', 'Laasti\Directions\Strategies\PeelsStrategy');
+        $this->getContainer()->add('Laasti\Directions\Strategies\PeelsStrategy', 'Laasti\Directions\Strategies\PeelsStrategy')->withArgument('Laasti\Peels\StackBuilder');
 
         if ($this->getContainer()->has('Laasti\Peels\StackBuilderInterface')) {
-            $this->getContainer()->add('Laasti\Directions\Strategies\StrategyInterface', 'Laasti\Directions\Strategies\PeelsStrategy')->withArgument('Laasti\Peels\StackBuilderInterface');
+            $this->getContainer()->add('Laasti\Directions\Strategies\StrategyInterface', 'Laasti\Directions\Strategies\PeelsStrategy')->withArgument('Laasti\Peels\StackBuilder');
         } else {
             $this->getContainer()->add('Laasti\Directions\Strategies\StrategyInterface', 'Laasti\Directions\Strategies\HttpMessageStrategy');
         }
@@ -77,6 +78,10 @@ class LeagueDirectionsProvider extends \League\Container\ServiceProvider\Abstrac
             foreach ($names as $name) {
                 if ($alias === 'directions.'.$name) {
                     return true;
+                } else if ($alias === 'directions.routers.'.$name) {
+                    return true;
+                } else if ($alias === 'directions.collections.'.$name) {
+                    return true;
                 }
             }
         }
@@ -84,6 +89,8 @@ class LeagueDirectionsProvider extends \League\Container\ServiceProvider\Abstrac
         $aliases = [];
         foreach ($names as $name) {
             $aliases[] = 'directions.'.$name;
+            $aliases[] = 'directions.routers.'.$name;
+            $aliases[] = 'directions.collections.'.$name;
         }
 
         return array_merge($this->provides, $aliases);

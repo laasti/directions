@@ -2,7 +2,9 @@
 
 namespace Laasti\Directions;
 
-use FastRoute\Dispatcher;
+use Laasti\Directions\Dispatcher;
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
 
 class Router implements RouterInterface
 {
@@ -20,7 +22,7 @@ class Router implements RouterInterface
     protected $routes;
 
 
-    public function __construct(RouteCollection $routes = null, \Laasti\Directions\Dispatcher $dispatcher = null)
+    public function __construct(RouteCollection $routes = null, Dispatcher $dispatcher = null)
     {
         $this->routes = $routes;
         $this->dispatcher = $dispatcher ?: new Dispatcher($routes);
@@ -67,9 +69,11 @@ class Router implements RouterInterface
      * @param string
      * @return Route
      */
-    public function find($httpMethod, $route)
+    public function find(ServerRequestInterface $request, ResponseInterface $response)
     {
-        return $this->dispatcher->dispatch($httpMethod, $route);
+        $request = $request->withAttribute('pathinfo', $this->getPathInfo($request))
+                ->withAttribute('basepath', $this->getBasePath($request));
+        return $this->dispatcher->dispatch($request->getMethod(), $this->getPathInfo($request));
     }
     
     /**
@@ -78,9 +82,9 @@ class Router implements RouterInterface
      * @param string
      * @return mixed
      */
-    public function findAndDispatch($httpMethod, $route)
+    public function findAndDispatch(ServerRequestInterface $request, ResponseInterface $response)
     {
-        return $this->dispatch($this->find($httpMethod, $route));
+        return $this->dispatch($this->find($request, $response), $request, $response);
     }
     
     /**
@@ -88,9 +92,30 @@ class Router implements RouterInterface
      * @param Route $route
      * @return mixed
      */
-    public function dispatch(Route $route)
+    public function dispatch(Route $route, ServerRequestInterface $request = null, ResponseInterface $response = null)
     {
+        if ($route->getStrategy() instanceof Strategies\HttpAwareStrategyInterface) {
+            $route->getStrategy()->setRequest($request);
+            $route->getStrategy()->setResponse($response);
+        }
         return $route->callStrategy();
+    }
+
+    protected function getPathInfo(ServerRequestInterface $request)
+    {
+        return str_replace($this->getBasePath($request), '', $request->getUri()->getPath());
+    }
+
+    protected function getBasePath(ServerRequestInterface $request)
+    {
+        $server = $request->getServerParams();
+        $folder = '';
+        if (isset($server['SCRIPT_NAME'])) {
+            $folder = pathinfo($server['SCRIPT_NAME'], PATHINFO_DIRNAME);
+        } else if (isset($server['PHP_SELF'])) {
+            $folder = pathinfo($server['PHP_SELF'], PATHINFO_DIRNAME);
+        }
+        return $folder;
     }
 
 }

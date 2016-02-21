@@ -5,8 +5,9 @@ namespace Laasti\Directions\Strategies;
 use Laasti\Directions\Route;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
+use RuntimeException;
 
-class HttpMessageStrategy implements StrategyInterface
+class HttpMessageStrategy implements StrategyInterface, HttpAwareStrategyInterface
 {
     /**
      *
@@ -20,7 +21,7 @@ class HttpMessageStrategy implements StrategyInterface
      */
     protected $response;
 
-    public function __construct(RequestInterface $request, ResponseInterface $response)
+    public function __construct(RequestInterface $request = null, ResponseInterface $response = null)
     {
         $this->request = $request;
         $this->response = $response;
@@ -51,6 +52,9 @@ class HttpMessageStrategy implements StrategyInterface
 
     public function callRoute(Route $route)
     {
+        if (is_null($this->getRequest()) || is_null($this->getResponse())) {
+            throw new RuntimeException('You need to set the request and the response before calling callRoute.');
+        }
         $request = $this->getRequest()->withAttribute('_route', $route);
         foreach ($route->getAttributes() as $name => $value) {
             $request = $request->withAttribute($name, $value);

@@ -31,17 +31,17 @@ class RouteCollection extends RouteCollector
     /**
      *
      * @param string|array $httpMethod
-     * @param string $route
+     * @param string $pathinfo
      * @param callable|mixed $handler
      * @return Route
      */
-    public function addRoute($httpMethod, $route, $handler)
+    public function addRoute($httpMethod, $pathinfo, $handler)
     {
         if ($this->resolver instanceof ResolverInterface) {
             $handler = $this->resolver->resolve($handler);
         }
-        
-        parent::addRoute($httpMethod, $route, $this->createRoute($httpMethod, $route, $handler));
+        $route = $this->createRoute($httpMethod, $pathinfo, $handler);
+        parent::addRoute($httpMethod, $pathinfo, $route);
 
         return $route;
     }
