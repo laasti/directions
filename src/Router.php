@@ -27,7 +27,7 @@ class Router implements RouterInterface
         $this->routes = $routes;
         $this->locator = $locator ?: new Locator($routes);
     }
-    
+
     public function getLocator()
     {
         return $this->locator;
@@ -37,7 +37,7 @@ class Router implements RouterInterface
     {
         return $this->routes;
     }
-  
+
     public function setLocator(Locator $locator)
     {
         $this->locator = $locator;
@@ -52,7 +52,7 @@ class Router implements RouterInterface
     }
 
     /**
-     * 
+     *
      * @param string|array $httpMethod
      * @param string $route
      * @param mixed $handler
@@ -62,18 +62,19 @@ class Router implements RouterInterface
     {
         return $this->routes->addRoute($httpMethod, $route, $handler);
     }
-    
+
     /**
-     * 
+     *
      * @param ServerRequestInterface
      * @param ResponseInterface
      * @return ServerRequestInterface
      */
-    public function find(ServerRequestInterface $request, ResponseInterface $response)
+    public function find(ServerRequestInterface $request, ResponseInterface $response, callable $next = null)
     {
-        return $request->withAttribute('pathinfo', $this->getPathInfo($request))
+
+        return $next($request->withAttribute('pathinfo', $this->getPathInfo($request))
                 ->withAttribute('basepath', $this->getBasePath($request))
-                ->withAttribute('route', $this->locator->find($request->getMethod(), $this->getPathInfo($request)));
+                ->withAttribute('route', $this->locator->find($request->getMethod(), $this->getPathInfo($request))), $response);
     }
 
     /**
@@ -86,7 +87,7 @@ class Router implements RouterInterface
     {
         return $this->locator->find($method, $route);
     }
-    
+
     /**
      *
      * @param string HTTP Method
@@ -97,9 +98,9 @@ class Router implements RouterInterface
     {
         return $this->dispatch($this->find($request, $response), $response);
     }
-    
+
     /**
-     * 
+     *
      * @param Route $route
      * @return mixed
      */
@@ -114,7 +115,7 @@ class Router implements RouterInterface
             $route->getStrategy()->setRequest($request);
             $route->getStrategy()->setResponse($response);
         }
-        
+
         return $route->callStrategy();
     }
 
