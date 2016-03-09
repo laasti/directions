@@ -13,9 +13,11 @@ interface RouterInterface
     public function add($httpMethod, $route, $handler);
 
     /**
-     * @return Route
+     * @return ServerRequestInterface
      */
     public function find(ServerRequestInterface $request, ResponseInterface $response);
+
+    public function findRoute($method, $route);
     
     /**
      * @return Response
@@ -25,5 +27,10 @@ interface RouterInterface
     /**
      * @return Response
      */
-    public function dispatch(Route $route, ServerRequestInterface $request = null, ResponseInterface $response = null);
+    public function dispatch(ServerRequestInterface $request = null, ResponseInterface $response = null);
+
+    /**
+     * @return mixed
+     */
+    public function dispatchRoute(Route $route);
 }
