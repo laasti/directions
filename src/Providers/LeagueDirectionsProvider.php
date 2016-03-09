@@ -39,10 +39,10 @@ class LeagueDirectionsProvider extends \League\Container\ServiceProvider\Abstrac
         }
 
         $this->getContainer()->add('Laasti\Directions\Strategies\HttpMessageStrategy', 'Laasti\Directions\Strategies\HttpMessageStrategy');
-        $this->getContainer()->add('Laasti\Directions\Strategies\PeelsStrategy', 'Laasti\Directions\Strategies\PeelsStrategy')->withArgument('Laasti\Peels\StackBuilder');
+        $this->getContainer()->add('Laasti\Directions\Strategies\PeelsStrategy', 'Laasti\Directions\Strategies\PeelsStrategy')->withArgument('Laasti\Peels\Http\HttpRunner');
 
-        if ($this->getContainer()->has('Laasti\Peels\StackBuilderInterface')) {
-            $this->getContainer()->add('Laasti\Directions\Strategies\StrategyInterface', 'Laasti\Directions\Strategies\PeelsStrategy')->withArgument('Laasti\Peels\StackBuilder');
+        if ($this->getContainer()->has('Laasti\Peels\Http\HttpRunner')) {
+            $this->getContainer()->add('Laasti\Directions\Strategies\StrategyInterface', 'Laasti\Directions\Strategies\PeelsStrategy')->withArgument('Laasti\Peels\Http\HttpRunner');
         } else {
             $this->getContainer()->add('Laasti\Directions\Strategies\StrategyInterface', 'Laasti\Directions\Strategies\HttpMessageStrategy');
         }
