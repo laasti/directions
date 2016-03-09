@@ -95,7 +95,7 @@ class Router implements RouterInterface
      */
     public function findAndDispatch(ServerRequestInterface $request, ResponseInterface $response)
     {
-        return $this->dispatch($request->find($request, $response), $response);
+        return $this->dispatch($this->find($request, $response), $response);
     }
     
     /**
