@@ -2,7 +2,7 @@
 
 namespace Laasti\Directions;
 
-use Laasti\Directions\Dispatcher;
+use Laasti\Directions\Locator;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
@@ -11,9 +11,9 @@ class Router implements RouterInterface
 
     /**
      *
-     * @var Dispatcher
+     * @var Locator
      */
-    protected $dispatcher;
+    protected $locator;
 
     /**
      *
@@ -22,15 +22,15 @@ class Router implements RouterInterface
     protected $routes;
 
 
-    public function __construct(RouteCollection $routes = null, Dispatcher $dispatcher = null)
+    public function __construct(RouteCollection $routes = null, Locator $locator = null)
     {
         $this->routes = $routes;
-        $this->dispatcher = $dispatcher ?: new Dispatcher($routes);
+        $this->locator = $locator ?: new Locator($routes);
     }
     
-    public function getDispatcher()
+    public function getLocator()
     {
-        return $this->dispatcher;
+        return $this->locator;
     }
 
     public function getRoutes()
@@ -38,16 +38,16 @@ class Router implements RouterInterface
         return $this->routes;
     }
   
-    public function setDispatcher(Dispatcher $dispatcher)
+    public function setLocator(Locator $locator)
     {
-        $this->dispatcher = $dispatcher;
+        $this->locator = $locator;
         return $this;
     }
 
     public function setRoutes(RouteCollection $routes)
     {
         $this->routes = $routes;
-        $this->dispatcher = new Dispatcher($routes);
+        $this->locator = new Locator($routes);
         return $this;
     }
 
@@ -65,15 +65,26 @@ class Router implements RouterInterface
     
     /**
      * 
-     * @param string HTTP Method
-     * @param string
-     * @return Route
+     * @param ServerRequestInterface
+     * @param ResponseInterface
+     * @return ServerRequestInterface
      */
     public function find(ServerRequestInterface $request, ResponseInterface $response)
     {
-        $request = $request->withAttribute('pathinfo', $this->getPathInfo($request))
-                ->withAttribute('basepath', $this->getBasePath($request));
-        return $this->dispatcher->dispatch($request->getMethod(), $this->getPathInfo($request));
+        return $request->withAttribute('pathinfo', $this->getPathInfo($request))
+                ->withAttribute('basepath', $this->getBasePath($request))
+                ->withAttribute('route', $this->locator->find($request->getMethod(), $this->getPathInfo($request)));
+    }
+
+    /**
+     *
+     * @param string $method Method
+     * @param string $route Route
+     * @return Route
+     */
+    public function findRoute($method, $route)
+    {
+        return $this->locator->find($method, $route);
     }
     
     /**
@@ -84,7 +95,7 @@ class Router implements RouterInterface
      */
     public function findAndDispatch(ServerRequestInterface $request, ResponseInterface $response)
     {
-        return $this->dispatch($this->find($request, $response), $request, $response);
+        return $this->dispatch($request->find($request, $response), $response);
     }
     
     /**
@@ -92,12 +103,27 @@ class Router implements RouterInterface
      * @param Route $route
      * @return mixed
      */
-    public function dispatch(Route $route, ServerRequestInterface $request = null, ResponseInterface $response = null)
+    public function dispatch(ServerRequestInterface $request = null, ResponseInterface $response = null)
     {
+        if (!isset($request->getAttributes()['route'])) {
+            $request = $this->find($request, $response);
+        }
+        $route = $request->getAttribute('route');
+
         if ($route->getStrategy() instanceof Strategies\HttpAwareStrategyInterface) {
             $route->getStrategy()->setRequest($request);
             $route->getStrategy()->setResponse($response);
         }
+        
+        return $route->callStrategy();
+    }
+
+    /**
+     *
+     * @param \Laasti\Directions\Route $route
+     */
+    public function dispatchRoute(Route $route)
+    {
         return $route->callStrategy();
     }
 

@@ -12,7 +12,7 @@ use Laasti\Directions\Exceptions\RouteNotFoundException;
  *
  * @author Sonia
  */
-class Dispatcher extends GroupCountBased
+class Locator extends GroupCountBased
 {
     
     protected $routes;
@@ -22,7 +22,7 @@ class Dispatcher extends GroupCountBased
         $this->routes = $routes;
     }
     
-    public function dispatch($httpMethod, $uri)
+    public function find($httpMethod, $uri)
     {
         list($this->staticRouteMap, $this->variableRouteData) = $this->routes->getData();
         $result = parent::dispatch($httpMethod, $uri);

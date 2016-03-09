@@ -13,7 +13,7 @@ class LeagueDirectionsProvider extends \League\Container\ServiceProvider\Abstrac
         'Laasti\Directions\Strategies\StrategyInterface',
         'Laasti\Directions\Strategies\HttpMessageStrategy',
         'Laasti\Directions\Strategies\PeelsStrategy',
-        'Laasti\Directions\Dispatcher',
+        'Laasti\Directions\Locator',
         'Laasti\Directions\RouteCollection',
         'Laasti\Directions\Router',
         'Laasti\Directions\RouterInterface',

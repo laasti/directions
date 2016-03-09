@@ -26,11 +26,11 @@ class PeelsStrategy implements StrategyInterface, HttpAwareStrategyInterface
      *
      * @var StackBuilderInterface
      */
-    protected $stack;
+    protected $runner;
 
-    public function __construct(StackBuilderInterface $stack, RequestInterface $request = null, ResponseInterface $response = null)
+    public function __construct(\Laasti\Peels\Http\HttpRunner $runner, RequestInterface $request = null, ResponseInterface $response = null)
     {
-        $this->stack = $stack;
+        $this->runner = $runner;
         $this->request = $request;
         $this->response = $response;
     }
@@ -57,14 +57,14 @@ class PeelsStrategy implements StrategyInterface, HttpAwareStrategyInterface
         return $this;
     }
 
-    public function getStack()
+    public function getRunner()
     {
-        return $this->stack;
+        return $this->runner;
     }
 
-    public function setStack(StackBuilderInterface $stack)
+    public function setRunner(Runner $runner)
     {
-        $this->stack = $stack;
+        $this->runner = $runner;
         return $this;
     }
 
@@ -74,14 +74,15 @@ class PeelsStrategy implements StrategyInterface, HttpAwareStrategyInterface
             throw new RuntimeException('You need to set the request and the response before calling callRoute.');
         }
         $request = $this->getRequest()->withAttribute('_route', $route);
+        $runner = clone $this->getRunner();
         foreach ($route->getMiddlewares() as $middleware) {
-            $this->stack->push($middleware);
+            $runner->push($middleware);
         }
         foreach ($route->getAttributes() as $name => $value) {
             $request = $request->withAttribute($name, $value);
         }
-        $this->stack->push($route->getHandler());
-        $runner = $this->stack->create();
+        $runner->push($route->getHandler());
+
         return $runner($request, $this->getResponse());
     }
 }

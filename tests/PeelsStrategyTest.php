@@ -13,7 +13,7 @@ class PeelsStrategyTest extends \PHPUnit_Framework_TestCase
     public function testNoRequest()
     {
         $this->setExpectedException('RuntimeException');
-        $strategy = new \Laasti\Directions\Strategies\PeelsStrategy(new \Laasti\Peels\StackBuilder);
+        $strategy = new \Laasti\Directions\Strategies\PeelsStrategy(new \Laasti\Peels\Http\HttpRunner(new \Laasti\Peels\MiddlewareResolver));
         $strategy->setResponse(new \Zend\Diactoros\Response());
         $strategy->callRoute(new \Laasti\Directions\Route('GET', '/fake', function() {}, $strategy));
     }
@@ -21,14 +21,14 @@ class PeelsStrategyTest extends \PHPUnit_Framework_TestCase
     public function testNoResponse()
     {
         $this->setExpectedException('RuntimeException');
-        $strategy = new \Laasti\Directions\Strategies\PeelsStrategy(new \Laasti\Peels\StackBuilder);
+        $strategy = new \Laasti\Directions\Strategies\PeelsStrategy(new \Laasti\Peels\Http\HttpRunner(new \Laasti\Peels\MiddlewareResolver));
         $strategy->setRequest(new \Zend\Diactoros\ServerRequest());
         $strategy->callRoute(new \Laasti\Directions\Route('GET', '/fake', function() {}, $strategy));
     }
 
     public function testRouteMiddleware()
     {
-        $strategy = new \Laasti\Directions\Strategies\PeelsStrategy(new \Laasti\Peels\StackBuilder);
+        $strategy = new \Laasti\Directions\Strategies\PeelsStrategy(new \Laasti\Peels\Http\HttpRunner(new \Laasti\Peels\MiddlewareResolver));
         $strategy->setRequest(new \Zend\Diactoros\ServerRequest());
         $strategy->setResponse(new \Zend\Diactoros\Response());
         $route = new \Laasti\Directions\Route('GET', '/fake', function() {}, $strategy);
