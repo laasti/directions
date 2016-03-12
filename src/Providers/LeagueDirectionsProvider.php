@@ -3,7 +3,7 @@
 
 namespace Laasti\Directions\Providers;
 
-class LeagueDirectionsProvider extends \League\Container\ServiceProvider\AbstractServiceProvider
+class LeagueDirectionsProvider extends \League\Container\ServiceProvider\AbstractServiceProvider implements \League\Container\ServiceProvider\BootableServiceProviderInterface
 {
 
     protected $provides = [
@@ -94,6 +94,12 @@ class LeagueDirectionsProvider extends \League\Container\ServiceProvider\Abstrac
         }
 
         return array_merge($this->provides, $aliases);
+    }
+
+    public function boot()
+    {
+        $this->getContainer()->inflector('Laasti\Directions\RouterAwareInterface')
+             ->invokeMethod('setRouter', ['Laasti\Directions\RouterInterface']);
     }
 
     protected function getConfig()
