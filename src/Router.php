@@ -130,7 +130,7 @@ class Router implements RouterInterface
 
     protected function getPathInfo(ServerRequestInterface $request)
     {
-        return str_replace($this->getBasePath($request), '', $request->getUri()->getPath());
+        return '/'.ltrim(str_replace($this->getBasePath($request), '', $request->getUri()->getPath()), '/');
     }
 
     protected function getBasePath(ServerRequestInterface $request)
