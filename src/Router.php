@@ -21,7 +21,6 @@ class Router implements RouterInterface
      */
     protected $routes;
 
-
     public function __construct(RouteCollection $routes = null, Locator $locator = null)
     {
         $this->routes = $routes;
@@ -135,14 +134,8 @@ class Router implements RouterInterface
 
     protected function getBasePath(ServerRequestInterface $request)
     {
-        $server = $request->getServerParams();
-        $folder = '';
-        if (isset($server['SCRIPT_NAME'])) {
-            $folder = pathinfo($server['SCRIPT_NAME'], PATHINFO_DIRNAME);
-        } else if (isset($server['PHP_SELF'])) {
-            $folder = pathinfo($server['PHP_SELF'], PATHINFO_DIRNAME);
-        }
-        return $folder;
+        $urlBuilder = new UrlBuilder($request);
+        return $urlBuilder->getBaseUri();
     }
 
 }

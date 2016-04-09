@@ -15,6 +15,7 @@ class LeagueDirectionsProvider extends \League\Container\ServiceProvider\Abstrac
         'Laasti\Directions\Strategies\PeelsStrategy',
         'Laasti\Directions\Locator',
         'Laasti\Directions\RouteCollection',
+        'Laasti\Directions\UrlBuilder',
         'Laasti\Directions\Router',
         'Laasti\Directions\RouterInterface',
     ];
@@ -46,6 +47,7 @@ class LeagueDirectionsProvider extends \League\Container\ServiceProvider\Abstrac
         } else {
             $this->getContainer()->add('Laasti\Directions\Strategies\StrategyInterface', 'Laasti\Directions\Strategies\HttpMessageStrategy');
         }
+        $this->getContainer()->add('Laasti\Directions\UrlBuilder')->withArgument('Psr\Http\Message\ServerRequestInterface');
 
         $this->getContainer()->add('Laasti\Directions\RouterInterface', 'Laasti\Directions\Router')->withArgument('Laasti\Directions\RouteCollection');
         $this->getContainer()->add('Laasti\Directions\RouteCollection', 'Laasti\Directions\RouteCollection')->withArguments([
@@ -100,6 +102,8 @@ class LeagueDirectionsProvider extends \League\Container\ServiceProvider\Abstrac
     {
         $this->getContainer()->inflector('Laasti\Directions\RouterAwareInterface')
              ->invokeMethod('setRouter', ['Laasti\Directions\RouterInterface']);
+        $this->getContainer()->inflector('Laasti\Directions\UrlBuilderAwareInterface')
+             ->invokeMethod('setUrlBuilder', ['Laasti\Directions\UrlBuilder']);
     }
 
     protected function getConfig()
