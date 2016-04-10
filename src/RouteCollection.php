@@ -37,9 +37,6 @@ class RouteCollection extends RouteCollector
      */
     public function addRoute($httpMethod, $pathinfo, $handler)
     {
-        if ($this->resolver instanceof ResolverInterface) {
-            $handler = $this->resolver->resolve($handler);
-        }
         $route = $this->createRoute($httpMethod, $pathinfo, $handler);
         parent::addRoute($httpMethod, $pathinfo, $route);
 

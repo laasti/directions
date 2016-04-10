@@ -10,6 +10,19 @@ class UrlBuilder
     {
         $this->request = $request;
     }
+
+    public function getCurrentUri($host = false, $complete = false)
+    {
+        if ($complete) {
+            return (string) $this->request->getUri();
+        }
+
+        $url = '';
+        if ($host) {
+            $url .= $this->getHost();
+        }
+        return rtrim($url, '/').'/'.ltrim($this->request->getUri()->getPath(), '/');
+    }
     
     public function create($format, $params = [], $host = false)
     {
@@ -34,6 +47,12 @@ class UrlBuilder
         return $uri;
     }
 
+    public function getHost()
+    {
+        $uri = $this->request->getUri();
+        return sprintf('%s://', $uri->getScheme(), $uri->getAuthority());
+    }
+
     public function getBaseUri($host = false)
     {
         $server = $this->request->getServerParams();
@@ -45,9 +64,9 @@ class UrlBuilder
         }
 
         if ($host) {
-            $uri = $this->request->getUri();
-            $host = sprintf('%s://', $uri->getScheme(), $uri->getAuthority());
+            $host = $this->getHost();
         }
+        
         return $host.$folder;
     }
 
