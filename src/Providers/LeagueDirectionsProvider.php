@@ -47,7 +47,7 @@ class LeagueDirectionsProvider extends \League\Container\ServiceProvider\Abstrac
         } else {
             $this->getContainer()->add('Laasti\Directions\Strategies\StrategyInterface', 'Laasti\Directions\Strategies\HttpMessageStrategy');
         }
-        $this->getContainer()->add('Laasti\Directions\UrlBuilder')->withArgument('Psr\Http\Message\ServerRequestInterface');
+        $this->getContainer()->add('Laasti\Directions\UrlBuilder')->withArgument('request');
 
         $this->getContainer()->add('Laasti\Directions\RouterInterface', 'Laasti\Directions\Router')->withArgument('Laasti\Directions\RouteCollection');
         $this->getContainer()->add('Laasti\Directions\RouteCollection', 'Laasti\Directions\RouteCollection')->withArguments([
@@ -58,7 +58,7 @@ class LeagueDirectionsProvider extends \League\Container\ServiceProvider\Abstrac
         foreach ($this->getConfig() as $name => $config) {
             $config += $this->defaultConfig;
             $this->getContainer()->share('directions.collections.'.$name, 'Laasti\Directions\RouteCollection')->withArguments([
-                $config['resolver'], $config['strategy']
+                $config['strategy']
             ]);
             $this->getContainer()->share('directions.routers.'.$name, $config['router'])->withArguments(['directions.collections.'.$name]);
             $this->getContainer()->share('directions.'.$name, function($router) use ($di, $config) {

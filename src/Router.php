@@ -55,11 +55,12 @@ class Router implements RouterInterface
      * @param string|array $httpMethod
      * @param string $route
      * @param mixed $handler
+     * @param array $middlewares
      * @return RouteCollection
      */
-    public function add($httpMethod, $route, $handler)
+    public function add($httpMethod, $route, $handler, $middlewares = [])
     {
-        return $this->routes->addRoute($httpMethod, $route, $handler);
+        return $this->routes->addRoute($httpMethod, $route, $handler, $middlewares);
     }
 
     /**

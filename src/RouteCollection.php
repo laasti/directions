@@ -12,16 +12,14 @@ class RouteCollection extends RouteCollector
 {
     protected $routeDictionary;
     protected $currentRoute;
-    protected $resolver;
     /**
      *
      * @var StrategyInterface
      */
     protected $defaultStrategy;
 
-    public function __construct(ResolverInterface $resolver, StrategyInterface $defaultStrategy,  RouteParser $routeParser = null, DataGenerator $dataGenerator = null)
+    public function __construct(StrategyInterface $defaultStrategy,  RouteParser $routeParser = null, DataGenerator $dataGenerator = null)
     {
-        $this->resolver = $resolver;
         $this->defaultStrategy = $defaultStrategy;
         $this->routeParser = $routeParser ? : new RouteParser\Std;
         $this->dataGenerator = $dataGenerator ? : new DataGenerator\GroupCountBased;
@@ -35,29 +33,19 @@ class RouteCollection extends RouteCollector
      * @param callable|mixed $handler
      * @return Route
      */
-    public function addRoute($httpMethod, $pathinfo, $handler)
+    public function addRoute($httpMethod, $pathinfo, $handler, $middlewares = [])
     {
-        $route = $this->createRoute($httpMethod, $pathinfo, $handler);
+        $route = $this->createRoute($httpMethod, $pathinfo, $handler, $middlewares);
         parent::addRoute($httpMethod, $pathinfo, $route);
 
         return $route;
     }
 
-    protected function createRoute($httpMethod, $route, $handler)
+    protected function createRoute($httpMethod, $route, $handler, $middlewares = [])
     {
         $this->currentRoute = new Route($httpMethod, $route, $handler, $this->defaultStrategy);
+        $this->currentRoute->setMiddlewares($middlewares);
         return $this->currentRoute;
-    }
-
-    public function getResolver()
-    {
-        return $this->resolver;
-    }
-
-    public function setResolver($resolver)
-    {
-        $this->resolver = $resolver;
-        return $this;
     }
 
     public function getDefaultStrategy()
