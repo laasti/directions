@@ -2,11 +2,14 @@
 
 namespace Laasti\Directions;
 
+use Exception;
+use Psr\Http\Message\ServerRequestInterface;
+
 class UrlBuilder
 {
     protected $request;
 
-    public function __construct(\Psr\Http\Message\ServerRequestInterface $request)
+    public function __construct(ServerRequestInterface $request)
     {
         $this->request = $request;
     }

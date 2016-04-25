@@ -71,10 +71,15 @@ class Router implements RouterInterface
      */
     public function find(ServerRequestInterface $request, ResponseInterface $response, callable $next = null)
     {
+        $route = $this->locator->find($request->getMethod(), $this->getPathInfo($request));
+
+        foreach ($route->getAttributes() as $name => $value) {
+            $request = $request->withAttribute($name, $value);
+        }
 
         return $next($request->withAttribute('pathinfo', $this->getPathInfo($request))
                 ->withAttribute('basepath', $this->getBasePath($request))
-                ->withAttribute('route', $this->locator->find($request->getMethod(), $this->getPathInfo($request))), $response);
+                ->withAttribute('route', $route), $response);
     }
 
     /**
