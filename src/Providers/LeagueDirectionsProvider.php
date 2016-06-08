@@ -51,7 +51,7 @@ class LeagueDirectionsProvider extends \League\Container\ServiceProvider\Abstrac
 
         $this->getContainer()->add('Laasti\Directions\RouterInterface', 'Laasti\Directions\Router')->withArgument('Laasti\Directions\RouteCollection');
         $this->getContainer()->add('Laasti\Directions\RouteCollection', 'Laasti\Directions\RouteCollection')->withArguments([
-            'Laasti\Directions\Resolvers\ResolverInterface', 'Laasti\Directions\Strategies\StrategyInterface'
+           'Laasti\Directions\Strategies\StrategyInterface'
         ]);
 
         $di = $this->getContainer();
