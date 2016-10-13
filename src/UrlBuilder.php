@@ -70,7 +70,7 @@ class UrlBuilder
             $host = $this->getHost();
         }
         
-        return $host.$folder;
+        return $host.ltrim($folder, '/');
     }
 
 }
