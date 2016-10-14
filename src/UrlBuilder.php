@@ -53,7 +53,7 @@ class UrlBuilder
     public function getHost()
     {
         $uri = $this->request->getUri();
-        return sprintf('%s://', $uri->getScheme(), $uri->getAuthority());
+        return sprintf('%s://%s/', $uri->getScheme(), $uri->getAuthority());
     }
 
     public function getBaseUri($host = false)
@@ -70,7 +70,7 @@ class UrlBuilder
             $host = $this->getHost();
         }
         
-        return $host.ltrim($folder, '/');
+        return $host ? $host.ltrim($folder, '/') : $folder;
     }
 
 }
