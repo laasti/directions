@@ -55,15 +55,20 @@ class RouteCollection extends RouteCollector
      */
     protected function createRoute($httpMethod, $route, $handler, $middlewares = [])
     {
-        if ($this->currentRoute instanceof Route) {
-            $name = $this->currentRoute->getName();
-            if (!is_null($name)) {
-                $this->namedRoutes[] = $this->currentRoute;
-            }
-        }
+        $this->saveCurrentRoute();
         $this->currentRoute = new Route($httpMethod, $route, $handler, $this->defaultStrategy);
         $this->currentRoute->setMiddlewares($middlewares);
         return $this->currentRoute;
+    }
+
+    protected function saveCurrentRoute()
+    {
+        if ($this->currentRoute instanceof Route) {
+            $name = $this->currentRoute->getName();
+            if (!is_null($name)) {
+                $this->namedRoutes[$name] = $this->currentRoute;
+            }
+        }
     }
 
     /**
@@ -93,6 +98,8 @@ class RouteCollection extends RouteCollector
      */
     public function getRouteByName($name)
     {
+        $this->saveCurrentRoute();
+        
         if (isset($this->namedRoutes[$name])) {
             return $this->namedRoutes[$name];
         }

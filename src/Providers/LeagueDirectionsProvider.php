@@ -70,6 +70,8 @@ class LeagueDirectionsProvider extends \League\Container\ServiceProvider\Abstrac
                     return true;
                 } else if ($alias === 'directions.routers.'.$name) {
                     return true;
+                } else if ($alias === 'directions.builders.'.$name) {
+                    return true;
                 } else if ($alias === 'directions.collections.'.$name) {
                     return true;
                 }
@@ -80,6 +82,7 @@ class LeagueDirectionsProvider extends \League\Container\ServiceProvider\Abstrac
         foreach ($names as $name) {
             $aliases[] = 'directions.'.$name;
             $aliases[] = 'directions.routers.'.$name;
+            $aliases[] = 'directions.builders.'.$name;
             $aliases[] = 'directions.collections.'.$name;
         }
 

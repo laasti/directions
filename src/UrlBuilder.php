@@ -2,6 +2,7 @@
 
 namespace Laasti\Directions;
 
+use BadMethodCallException;
 use Exception;
 use Psr\Http\Message\ServerRequestInterface;
 
@@ -10,15 +11,15 @@ class UrlBuilder
     protected $request;
     protected $routes;
 
-    public function __construct(\Psr\Http\Message\ServerRequestInterface $request, \Laasti\Directions\RouteCollection $routes = null)
+    public function __construct(ServerRequestInterface $request, RouteCollection $routes = null)
     {
         $this->request = $request;
         $this->routes = $routes;
     }
 
-    public function getCurrentUri($host = false, $complete = false)
+    public function getCurrentUri($host = false, $includeQueryParams = false)
     {
-        if ($complete) {
+        if ($includeQueryParams) {
             return (string) $this->request->getUri();
         }
 
@@ -37,7 +38,7 @@ class UrlBuilder
     public function createByName($name, $params = [], $host = false)
     {
         if (is_null($this->routes)) {
-            throw new \BadMethodCallException('You must provide a Laasti\Directions\RouteCollection to the builder to use this method.');
+            throw new BadMethodCallException('You must provide a Laasti\Directions\RouteCollection to the builder to use this method.');
         }
 
         $route = $this->routes->getRouteByName($name);
