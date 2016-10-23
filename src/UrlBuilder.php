@@ -8,10 +8,12 @@ use Psr\Http\Message\ServerRequestInterface;
 class UrlBuilder
 {
     protected $request;
+    protected $routes;
 
-    public function __construct(ServerRequestInterface $request)
+    public function __construct(\Psr\Http\Message\ServerRequestInterface $request, \Laasti\Directions\RouteCollection $routes = null)
     {
         $this->request = $request;
+        $this->routes = $routes;
     }
 
     public function getCurrentUri($host = false, $complete = false)
@@ -30,6 +32,18 @@ class UrlBuilder
     public function create($format, $params = [], $host = false)
     {
         return rtrim($this->getBaseUri($host), '/').'/'.ltrim($this->parseUri($format, $params), '/');
+    }
+
+    public function createByName($name, $params = [], $host = false)
+    {
+        if (is_null($this->routes)) {
+            throw new \BadMethodCallException('You must provide a Laasti\Directions\RouteCollection to the builder to use this method.');
+        }
+
+        $route = $this->routes->getRouteByName($name);
+
+        return $this->create($route->getRoute(), $params, $host);
+
     }
 
     public function parseUri($uri, $params = [])
@@ -65,7 +79,7 @@ class UrlBuilder
         } else if (isset($server['PHP_SELF'])) {
             $folder = pathinfo($server['PHP_SELF'], PATHINFO_DIRNAME);
         }
-
+        $folder = str_replace('\\', '/', $folder);
         if ($host) {
             $host = $this->getHost();
         }

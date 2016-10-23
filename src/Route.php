@@ -6,15 +6,15 @@ namespace Laasti\Directions;
 use Laasti\Directions\Strategies\StrategyInterface;
 
 /**
- * Description of Route
+ * Route
  *
- * @author Sonia
  */
 class Route
 {
     protected $httpMethod;
     protected $route;
     protected $handler;
+    protected $name;
     protected $middlewares = [];
     protected $attributes = [];
     
@@ -112,5 +112,15 @@ class Route
     public function hasAttribute($attribute)
     {
         return array_key_exists($attribute, $this->attributes);
+    }
+
+    public function setName($name)
+    {
+        $this->name = $name;
+    }
+
+    public function getName()
+    {
+        return $this->name;
     }
 }

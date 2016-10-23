@@ -7,11 +7,6 @@ use FastRoute\Dispatcher\GroupCountBased;
 use Laasti\Directions\Exceptions\MethodNotAllowedException;
 use Laasti\Directions\Exceptions\RouteNotFoundException;
 
-/**
- * Description of Dispatcher
- *
- * @author Sonia
- */
 class Locator extends GroupCountBased
 {
     

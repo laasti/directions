@@ -20,6 +20,7 @@ class LeagueDirectionsProvider extends \League\Container\ServiceProvider\Abstrac
     protected $defaultConfig = [
         'strategy' => 'Laasti\Directions\Strategies\StrategyInterface',
         'router' => 'Laasti\Directions\Router',
+        'builder' => 'Laasti\Directions\UrlBuilder',
         'routes' => []
     ];
 
@@ -33,7 +34,7 @@ class LeagueDirectionsProvider extends \League\Container\ServiceProvider\Abstrac
         } else {
             $this->getContainer()->add('Laasti\Directions\Strategies\StrategyInterface', 'Laasti\Directions\Strategies\HttpMessageStrategy');
         }
-        $this->getContainer()->add('Laasti\Directions\UrlBuilder')->withArgument('request');
+        $this->getContainer()->add('Laasti\Directions\UrlBuilder')->withArguments(['Psr\Http\Message\ServerRequestInterface', 'Laasti\Directions\RouteCollection']);
 
         $this->getContainer()->add('Laasti\Directions\RouterInterface', 'Laasti\Directions\Router')->withArgument('Laasti\Directions\RouteCollection');
         $this->getContainer()->add('Laasti\Directions\RouteCollection', 'Laasti\Directions\RouteCollection')->withArguments([
@@ -47,6 +48,7 @@ class LeagueDirectionsProvider extends \League\Container\ServiceProvider\Abstrac
                 $config['strategy']
             ]);
             $this->getContainer()->share('directions.routers.'.$name, $config['router'])->withArguments(['directions.collections.'.$name]);
+            $this->getContainer()->share('directions.builders.'.$name, $config['builder'])->withArguments(['Psr\Http\Message\ServerRequestInterface', 'directions.collections.'.$name]);
             $this->getContainer()->share('directions.'.$name, function($router) use ($di, $config) {
                 foreach ($config['routes'] as $routeArgs) {
                     call_user_func_array([$router, 'add'], $routeArgs);

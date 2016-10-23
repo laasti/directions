@@ -9,13 +9,18 @@ use Laasti\Directions\Strategies\StrategyInterface;
 
 class RouteCollection extends RouteCollector
 {
-    protected $routeDictionary;
+    /**
+     *
+     * @var Route
+     */
     protected $currentRoute;
     /**
      *
      * @var StrategyInterface
      */
     protected $defaultStrategy;
+
+    protected $namedRoutes = [];
 
     public function __construct(StrategyInterface $defaultStrategy,  RouteParser $routeParser = null, DataGenerator $dataGenerator = null)
     {
@@ -40,23 +45,59 @@ class RouteCollection extends RouteCollector
         return $route;
     }
 
+    /**
+     *
+     * @param string|array $httpMethod
+     * @param string $route
+     * @param callable|string $handler
+     * @param array $middlewares
+     * @return Route
+     */
     protected function createRoute($httpMethod, $route, $handler, $middlewares = [])
     {
+        if ($this->currentRoute instanceof Route) {
+            $name = $this->currentRoute->getName();
+            if (!is_null($name)) {
+                $this->namedRoutes[] = $this->currentRoute;
+            }
+        }
         $this->currentRoute = new Route($httpMethod, $route, $handler, $this->defaultStrategy);
         $this->currentRoute->setMiddlewares($middlewares);
         return $this->currentRoute;
     }
 
+    /**
+     * Return current default strategy
+     * @return StrategyInterface
+     */
     public function getDefaultStrategy()
     {
         return $this->defaultStrategy;
     }
 
-
+    /**
+     * Set new default strategy
+     * @return StrategyInterface
+     */
     public function setDefaultStrategy(StrategyInterface $defaultStrategy)
     {
         $this->defaultStrategy = $defaultStrategy;
         return $this;
+    }
+
+    /**
+     *
+     * @param string $name
+     * @return Route
+     * @throws \OutOfBoundsException
+     */
+    public function getRouteByName($name)
+    {
+        if (isset($this->namedRoutes[$name])) {
+            return $this->namedRoutes[$name];
+        }
+
+        throw new \OutOfBoundsException('No registered route with the name: '.$name);
     }
 
 }
