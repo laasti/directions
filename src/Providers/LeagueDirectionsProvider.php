@@ -7,9 +7,6 @@ class LeagueDirectionsProvider extends \League\Container\ServiceProvider\Abstrac
 {
 
     protected $provides = [
-        'Laasti\Directions\Resolvers\ResolverInterface',
-        'Laasti\Directions\Resolvers\CallableResolver',
-        'Laasti\Directions\Resolvers\ContainerResolver',
         'Laasti\Directions\Strategies\StrategyInterface',
         'Laasti\Directions\Strategies\HttpMessageStrategy',
         'Laasti\Directions\Strategies\PeelsStrategy',
@@ -21,7 +18,6 @@ class LeagueDirectionsProvider extends \League\Container\ServiceProvider\Abstrac
     ];
 
     protected $defaultConfig = [
-        'resolver' => 'Laasti\Directions\Resolvers\ResolverInterface',
         'strategy' => 'Laasti\Directions\Strategies\StrategyInterface',
         'router' => 'Laasti\Directions\Router',
         'routes' => []
@@ -29,16 +25,6 @@ class LeagueDirectionsProvider extends \League\Container\ServiceProvider\Abstrac
 
     public function register()
     {
-        $this->getContainer()->add('Laasti\Directions\Resolvers\CallableResolver', 'Laasti\Directions\Resolvers\CallableResolver');
-        $this->getContainer()->add('Laasti\Directions\Resolvers\CallableResolver', 'Laasti\Directions\Resolvers\ContainerResolver');
-
-        if ($this->getContainer()->has('Interop\Container\ContainerInterface')) {
-            $this->getContainer()->get('Interop\Container\ContainerInterface');
-            $this->getContainer()->add('Laasti\Directions\Resolvers\ResolverInterface', 'Laasti\Directions\Resolvers\ContainerResolver')->withArgument('Interop\Container\ContainerInterface');
-        } else {
-            $this->getContainer()->add('Laasti\Directions\Resolvers\ResolverInterface', 'Laasti\Directions\Resolvers\CallableResolver');
-        }
-
         $this->getContainer()->add('Laasti\Directions\Strategies\HttpMessageStrategy', 'Laasti\Directions\Strategies\HttpMessageStrategy');
         $this->getContainer()->add('Laasti\Directions\Strategies\PeelsStrategy', 'Laasti\Directions\Strategies\PeelsStrategy')->withArgument('Laasti\Peels\Http\HttpRunner');
 
@@ -51,7 +37,7 @@ class LeagueDirectionsProvider extends \League\Container\ServiceProvider\Abstrac
 
         $this->getContainer()->add('Laasti\Directions\RouterInterface', 'Laasti\Directions\Router')->withArgument('Laasti\Directions\RouteCollection');
         $this->getContainer()->add('Laasti\Directions\RouteCollection', 'Laasti\Directions\RouteCollection')->withArguments([
-           'Laasti\Directions\Strategies\StrategyInterface'
+            'Laasti\Directions\Strategies\StrategyInterface'
         ]);
 
         $di = $this->getContainer();

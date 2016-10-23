@@ -5,7 +5,6 @@ namespace Laasti\Directions;
 use FastRoute\DataGenerator;
 use FastRoute\RouteCollector;
 use FastRoute\RouteParser;
-use Laasti\Directions\Resolvers\ResolverInterface;
 use Laasti\Directions\Strategies\StrategyInterface;
 
 class RouteCollection extends RouteCollector
