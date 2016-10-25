@@ -2,12 +2,9 @@
 
 namespace Laasti\Directions;
 
-use FastRoute\DataGenerator;
-use FastRoute\RouteCollector;
-use FastRoute\RouteParser;
 use Laasti\Directions\Strategies\StrategyInterface;
 
-class RouteCollection extends RouteCollector
+class RouteCollection
 {
     /**
      *
@@ -21,13 +18,12 @@ class RouteCollection extends RouteCollector
     protected $defaultStrategy;
 
     protected $namedRoutes = [];
+    protected $routes = [];
+    protected $groups = [];
 
-    public function __construct(StrategyInterface $defaultStrategy,  RouteParser $routeParser = null, DataGenerator $dataGenerator = null)
+    public function __construct(StrategyInterface $defaultStrategy)
     {
         $this->defaultStrategy = $defaultStrategy;
-        $this->routeParser = $routeParser ? : new RouteParser\Std;
-        $this->dataGenerator = $dataGenerator ? : new DataGenerator\GroupCountBased;
-        parent::__construct($this->routeParser, $this->dataGenerator);
     }
 
     /**
@@ -40,8 +36,7 @@ class RouteCollection extends RouteCollector
     public function addRoute($httpMethod, $pathinfo, $handler, $middlewares = [])
     {
         $route = $this->createRoute($httpMethod, $pathinfo, $handler, $middlewares);
-        parent::addRoute($httpMethod, $pathinfo, $route);
-
+        $this->routes[] = $route;
         return $route;
     }
 
@@ -104,7 +99,32 @@ class RouteCollection extends RouteCollector
             return $this->namedRoutes[$name];
         }
 
+        foreach ($this->groups as $group) {
+            foreach ($group->getRoutes() as $route) {
+                if ($route->getName() === $name) {
+                    return $route;
+                }
+            }
+        }
+
         throw new \OutOfBoundsException('No registered route with the name: '.$name);
     }
 
+    public function addGroup($prefix = null, $suffix = null, $domain = null, $scheme = null)
+    {
+        $group = new RoutesGroup($this->defaultStrategy, $prefix, $suffix, $domain, $scheme);
+        $this->groups[] = $group;
+        
+        return $group;
+    }
+
+    public function getRoutes()
+    {
+        return $this->routes;
+    }
+
+    public function getGroups()
+    {
+        return $this->groups;
+    }
 }

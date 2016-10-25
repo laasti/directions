@@ -11,10 +11,15 @@ use Laasti\Directions\Strategies\StrategyInterface;
  */
 class Route
 {
+    use Conditions\ConditionableTrait;
+    
     protected $httpMethod;
     protected $route;
     protected $handler;
     protected $name;
+    protected $group;
+    protected $scheme;
+    protected $host;
     protected $middlewares = [];
     protected $attributes = [];
     
@@ -30,6 +35,7 @@ class Route
         $this->route = $route;
         $this->handler = $handler;
         $this->strategy = $strategy;
+        $this->group = new RoutesGroup($strategy);
     }
     
     public function getHttpMethod()
@@ -39,7 +45,7 @@ class Route
 
     public function getRoute()
     {
-        return $this->route;
+        return $this->getGroup()->getPrefix().$this->route.$this->getGroup()->getSuffix();
     }
 
     public function getHandler()
@@ -122,5 +128,38 @@ class Route
     public function getName()
     {
         return $this->name;
+    }
+
+    public function getHost()
+    {
+        return $this->host ? $this->host : $this->getGroup()->getHost();
+    }
+
+    public function getGroup()
+    {
+        return $this->group;
+    }
+
+    public function setGroup(RoutesGroup $group)
+    {
+        $this->group = $group;
+        return $this;
+    }
+
+    public function getScheme()
+    {
+        return $this->scheme ? $this->scheme : $this->getGroup()->getScheme();
+    }
+    
+    public function setHost($host)
+    {
+        $this->host = $host;
+        return $this;
+    }
+
+    public function setScheme($scheme)
+    {
+        $this->scheme = $scheme;
+        return $this;
     }
 }

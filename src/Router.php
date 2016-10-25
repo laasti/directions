@@ -27,11 +27,6 @@ class Router implements RouterInterface
         $this->locator = $locator ?: new Locator($routes);
     }
 
-    public function getLocator()
-    {
-        return $this->locator;
-    }
-
     public function getRoutes()
     {
         return $this->routes;
@@ -63,6 +58,11 @@ class Router implements RouterInterface
         return $this->routes->addRoute($httpMethod, $route, $handler, $middlewares);
     }
 
+    public function createGroup($prefix = null, $suffix = null, $domain = null, $scheme = null)
+    {
+        return $this->routes->addGroup($prefix, $suffix, $domain, $scheme);
+    }
+
     /**
      *
      * @param ServerRequestInterface
@@ -71,7 +71,7 @@ class Router implements RouterInterface
      */
     public function find(ServerRequestInterface $request, ResponseInterface $response, callable $next = null)
     {
-        $route = $this->locator->find($request->getMethod(), $this->getPathInfo($request));
+        $route = $this->locator->find($request->getMethod(), $this->getPathInfo($request), $request);
 
         foreach ($route->getAttributes() as $name => $value) {
             $request = $request->withAttribute($name, $value);
