@@ -58,9 +58,9 @@ class Router implements RouterInterface
         return $this->routes->addRoute($httpMethod, $route, $handler, $middlewares);
     }
 
-    public function createGroup($prefix = null, $suffix = null, $domain = null, $scheme = null)
+    public function createGroup($prefix = null, $suffix = null, $host = null, $scheme = null)
     {
-        return $this->routes->addGroup($prefix, $suffix, $domain, $scheme);
+        return $this->routes->addGroup($prefix, $suffix, $host, $scheme);
     }
 
     /**
@@ -73,24 +73,19 @@ class Router implements RouterInterface
     {
         $route = $this->locator->find($request->getMethod(), $this->getPathInfo($request), $request);
 
+        $request = $request->withAttribute('pathinfo', $this->getPathInfo($request))
+                    ->withAttribute('basepath', $this->getBasePath($request))
+                    ->withAttribute('route', $route);
+
         foreach ($route->getAttributes() as $name => $value) {
             $request = $request->withAttribute($name, $value);
         }
 
-        return $next($request->withAttribute('pathinfo', $this->getPathInfo($request))
-                ->withAttribute('basepath', $this->getBasePath($request))
-                ->withAttribute('route', $route), $response);
-    }
-
-    /**
-     *
-     * @param string $method Method
-     * @param string $route Route
-     * @return Route
-     */
-    public function findRoute($method, $route)
-    {
-        return $this->locator->find($method, $route);
+        if (is_callable($next)) {
+            return $next($request, $response);
+        } else {
+            return $request;
+        }
     }
 
     /**

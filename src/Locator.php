@@ -48,7 +48,7 @@ class Locator extends GroupCountBased
     protected function getRoute($indexKey, ServerRequestInterface $request)
     {
         $validRoutes = [];
-
+        
         foreach ($this->routesIndex[$indexKey] as $route) {
             $scheme = $route->getScheme();
             if (!empty($scheme) && $request->getUri()->getScheme() !== $scheme) {

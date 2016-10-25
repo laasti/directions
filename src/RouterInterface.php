@@ -16,8 +16,6 @@ interface RouterInterface
      * @return ServerRequestInterface
      */
     public function find(ServerRequestInterface $request, ResponseInterface $response);
-
-    public function findRoute($method, $route);
     
     /**
      * @return Response
