@@ -58,9 +58,14 @@ class Locator extends GroupCountBased
             if (!empty($host) && $request->getUri()->getHost() !== $host) {
                 continue;
             }
+            foreach ($route->getGroup()->getConditions() as $condition) {
+                if (!$condition->verify($request)) {
+                    continue 2;
+                }
+            }
             foreach ($route->getConditions() as $condition) {
                 if (!$condition->verify($request)) {
-                    continue;
+                    continue 2;
                 }
             }
             $validRoutes[] = $route;

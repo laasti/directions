@@ -18,12 +18,12 @@ class GroupsTest extends PHPUnit_Framework_TestCase
         return new Router(new RouteCollection(new HttpMessageStrategy));
     }
 
-    protected function fakeServerParams($uri, $query = 'p=1', $scheme = 'http')
+    protected function fakeServerParams($uri, $query = 'p=1', $scheme = 'http', $host = 'localhost')
     {
         return [
             "REDIRECT_STATUS" => "200",
-            "HTTP_HOST" => "localhost",
-            "SERVER_NAME" => "localhost",
+            "HTTP_HOST" => $host,
+            "SERVER_NAME" => $host,
             "SERVER_ADDR" => "::1",
             "SERVER_PORT" => "80",
             "REMOTE_ADDR" => "::1",
@@ -69,7 +69,7 @@ class GroupsTest extends PHPUnit_Framework_TestCase
         $router = $this->getRouter();
         $route = $router->add('GET', '/test', function() {return new TextResponse('TEST');});
         $route->setScheme('http');
-        
+
         $group = $router->createGroup('', '', null, 'https');
         $route = $group->add('GET', '/test', function() {return new TextResponse('SECURE TEST');});
 
@@ -80,6 +80,43 @@ class GroupsTest extends PHPUnit_Framework_TestCase
         $response = $router->dispatch(ServerRequestFactory::fromGlobals($this->fakeServerParams('/test', 'p=2', 'https')), new Response());
         $this->assertInstanceOf('Zend\Diactoros\Response', $response);
         $this->assertEquals('SECURE TEST', (string) $response->getBody());
+    }
+
+    public function testHostGroup()
+    {
+        $router = $this->getRouter();
+        $route = $router->add('GET', '/test', function() {return new TextResponse('TEST');});
+        $route->setHost('localhost');
+
+        $group = $router->createGroup('', '', 'example.com', null);
+        $route = $group->add('GET', '/test', function() {return new TextResponse('HOST TEST');});
+
+        $response = $router->dispatch(ServerRequestFactory::fromGlobals($this->fakeServerParams('/test')), new Response());
+        $this->assertInstanceOf('Zend\Diactoros\Response', $response);
+        $this->assertEquals('TEST', (string) $response->getBody());
+
+        $response = $router->dispatch(ServerRequestFactory::fromGlobals($this->fakeServerParams('/test', 'p=2', 'http', 'example.com')), new Response());
+        $this->assertInstanceOf('Zend\Diactoros\Response', $response);
+        $this->assertEquals('HOST TEST', (string) $response->getBody());
+    }
+
+    public function testConditionGroup()
+    {
+        $router = $this->getRouter();
+        $route = $router->add('GET', '/test', function() {return new TextResponse('TEST');});
+        $route->addQueryCondition('page');
+
+        $group = $router->createGroup();
+        $group->addQueryCondition('test');
+        $route = $group->add('GET', '/test', function() {return new TextResponse('CONDITION TEST');});
+
+        $response = $router->dispatch(ServerRequestFactory::fromGlobals($this->fakeServerParams('/test', 'page=2'), ['page' => 2]), new Response());
+        $this->assertInstanceOf('Zend\Diactoros\Response', $response);
+        $this->assertEquals('TEST', (string) $response->getBody());
+
+        $response = $router->dispatch(ServerRequestFactory::fromGlobals($this->fakeServerParams('/test', 'test=2'), ['test' => 2]), new Response());
+        $this->assertInstanceOf('Zend\Diactoros\Response', $response);
+        $this->assertEquals('CONDITION TEST', (string) $response->getBody());
     }
 
 }
