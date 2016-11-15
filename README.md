@@ -12,12 +12,6 @@ A HTTP message router using nikic's FastRoute
 
 ## Todo
 
-* League container service provider
-* RouterAwareTrait with inflector
-* Name routes
-* Group routes
-* Generate URLs from routes
-* Routes across multiple domains
 * Add your own parsing formats ie hex
 
 ## Installation
