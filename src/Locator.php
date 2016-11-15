@@ -89,7 +89,7 @@ class Locator extends GroupCountBased
         foreach ($this->routes->getGroups() as $group) {
             foreach ($group->getRoutes() as $route) {
                 $uri = $route->getRoute();
-                $key = $route->getHttpMethod().'_'.$uri;
+                $key = implode('_', (array)$route->getHttpMethod()).'_'.$uri;
                 if (!isset($this->routesIndex[$key])) {
                     $collector->addRoute($route->getHttpMethod(), $uri, $key);
                 }
@@ -98,7 +98,7 @@ class Locator extends GroupCountBased
         }
         foreach ($this->routes->getRoutes() as $route) {
             $uri = $route->getRoute();
-            $key = $route->getHttpMethod().'_'.$uri;
+            $key = implode('_', (array)$route->getHttpMethod()).'_'.$uri;
             if (!isset($this->routesIndex[$key])) {
                 $collector->addRoute($route->getHttpMethod(), $uri, $key);
             }
