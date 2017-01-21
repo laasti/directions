@@ -94,7 +94,7 @@ class RouteCollection
     public function getRouteByName($name)
     {
         $this->saveCurrentRoute();
-        
+
         if (isset($this->namedRoutes[$name])) {
             return $this->namedRoutes[$name];
         }
@@ -107,14 +107,14 @@ class RouteCollection
             }
         }
 
-        throw new \OutOfBoundsException('No registered route with the name: '.$name);
+        throw new \OutOfBoundsException('No registered route with the name: ' . $name);
     }
 
     public function addGroup($prefix = null, $suffix = null, $domain = null, $scheme = null)
     {
         $group = new RoutesGroup($this->defaultStrategy, $prefix, $suffix, $domain, $scheme);
         $this->groups[] = $group;
-        
+
         return $group;
     }
 

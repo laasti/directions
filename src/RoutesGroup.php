@@ -6,7 +6,7 @@ namespace Laasti\Directions;
 class RoutesGroup
 {
     use Conditions\ConditionableTrait;
-    
+
     protected $strategy;
     protected $suffix = '';
     protected $prefix = '';
@@ -15,8 +15,13 @@ class RoutesGroup
     protected $middlewares = [];
     protected $routes = [];
 
-    public function __construct(Strategies\StrategyInterface $strategy, $prefix = null, $suffix = null, $domain = null, $scheme = null)
-    {
+    public function __construct(
+        Strategies\StrategyInterface $strategy,
+        $prefix = null,
+        $suffix = null,
+        $domain = null,
+        $scheme = null
+    ) {
         $this->strategy = $strategy;
         $this->suffix = $suffix;
         $this->prefix = $prefix;
@@ -56,25 +61,15 @@ class RoutesGroup
         return $this->suffix;
     }
 
-    public function getPrefix()
-    {
-        return $this->prefix;
-    }
-
-    public function getHost()
-    {
-        return $this->host;
-    }
-
-    public function getScheme()
-    {
-        return $this->scheme;
-    }
-
     public function setSuffix($suffix)
     {
         $this->suffix = $suffix;
         return $this;
+    }
+
+    public function getPrefix()
+    {
+        return $this->prefix;
     }
 
     public function setPrefix($prefix)
@@ -83,10 +78,20 @@ class RoutesGroup
         return $this;
     }
 
+    public function getHost()
+    {
+        return $this->host;
+    }
+
     public function setHost($host)
     {
         $this->host = $host;
         return $this;
+    }
+
+    public function getScheme()
+    {
+        return $this->scheme;
     }
 
     public function setScheme($scheme)
@@ -99,5 +104,4 @@ class RoutesGroup
     {
         return $this->routes;
     }
-
 }

@@ -14,10 +14,10 @@ class HttpMessageStrategy implements StrategyInterface, HttpAwareStrategyInterfa
      * @var RequestInterface
      */
     protected $request;
-    
+
     /**
-     * 
-     * @var ResponseInterface 
+     *
+     * @var ResponseInterface
      */
     protected $response;
 
@@ -26,29 +26,6 @@ class HttpMessageStrategy implements StrategyInterface, HttpAwareStrategyInterfa
         $this->request = $request;
         $this->response = $response;
     }
-
-    public function getRequest()
-    {
-        return $this->request;
-    }
-
-    public function getResponse()
-    {
-        return $this->response;
-    }
-
-    public function setRequest(RequestInterface $request)
-    {
-        $this->request = $request;
-        return $this;
-    }
-
-    public function setResponse(ResponseInterface $response)
-    {
-        $this->response = $response;
-        return $this;
-    }
-
 
     public function callRoute(Route $route)
     {
@@ -60,5 +37,27 @@ class HttpMessageStrategy implements StrategyInterface, HttpAwareStrategyInterfa
             $request = $request->withAttribute($name, $value);
         }
         return call_user_func_array($route->getHandler(), [$request, $this->getResponse()]);
+    }
+
+    public function getRequest()
+    {
+        return $this->request;
+    }
+
+    public function setRequest(RequestInterface $request)
+    {
+        $this->request = $request;
+        return $this;
+    }
+
+    public function getResponse()
+    {
+        return $this->response;
+    }
+
+    public function setResponse(ResponseInterface $response)
+    {
+        $this->response = $response;
+        return $this;
     }
 }

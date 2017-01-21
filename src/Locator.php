@@ -15,40 +15,68 @@ use Psr\Http\Message\ServerRequestInterface;
 
 class Locator extends GroupCountBased
 {
-    
+
     protected $routes;
     protected $routesIndex = [];
-    
+
     public function __construct(RouteCollection $routes)
     {
         $this->routes = $routes;
     }
-    
+
     public function find($httpMethod, $uri, ServerRequestInterface $request)
     {
         list($this->staticRouteMap, $this->variableRouteData) = $this->getCollector()->getData();
         $result = parent::dispatch($httpMethod, $uri);
-        
+
         switch ($result[0]) {
             case self::NOT_FOUND:
                 throw new RouteNotFoundException;
             case self::METHOD_NOT_ALLOWED:
-                throw new MethodNotAllowedException((array) $result[1]);
+                throw new MethodNotAllowedException((array)$result[1]);
         }
 
         $route = $this->getRoute($result[1], $request);
-        
+
         foreach ((array)$result[2] as $name => $value) {
             $route->setAttribute($name, $value);
-        } 
-        
+        }
+
         return $route;
+    }
+
+    protected function getCollector()
+    {
+        $collector = new RouteCollector(new Std, new GroupCountBased2);
+
+        $this->routesIndex = [];
+
+        foreach ($this->routes->getGroups() as $group) {
+            foreach ($group->getRoutes() as $route) {
+                $uri = $route->getRoute();
+                $key = implode('_', (array)$route->getHttpMethod()) . '_' . $uri;
+                if (!isset($this->routesIndex[$key])) {
+                    $collector->addRoute($route->getHttpMethod(), $uri, $key);
+                }
+                $this->routesIndex[$key][] = $route;
+            }
+        }
+        foreach ($this->routes->getRoutes() as $route) {
+            $uri = $route->getRoute();
+            $key = implode('_', (array)$route->getHttpMethod()) . '_' . $uri;
+            if (!isset($this->routesIndex[$key])) {
+                $collector->addRoute($route->getHttpMethod(), $uri, $key);
+            }
+            $this->routesIndex[$key][] = $route;
+        }
+
+        return $collector;
     }
 
     protected function getRoute($indexKey, ServerRequestInterface $request)
     {
         $validRoutes = [];
-        
+
         foreach ($this->routesIndex[$indexKey] as $route) {
             $scheme = $route->getScheme();
             if (!empty($scheme) && $request->getUri()->getScheme() !== $scheme) {
@@ -73,38 +101,10 @@ class Locator extends GroupCountBased
 
         if (empty($validRoutes)) {
             throw new RouteConditionFailedException;
-        } else if (count($validRoutes) > 1) {
+        } elseif (count($validRoutes) > 1) {
             throw new ManyRoutesFoundException;
         }
 
         return reset($validRoutes);
-    }
-
-    protected function getCollector()
-    {
-        $collector = new RouteCollector(new Std, new GroupCountBased2);
-
-        $this->routesIndex = [];
-        
-        foreach ($this->routes->getGroups() as $group) {
-            foreach ($group->getRoutes() as $route) {
-                $uri = $route->getRoute();
-                $key = implode('_', (array)$route->getHttpMethod()).'_'.$uri;
-                if (!isset($this->routesIndex[$key])) {
-                    $collector->addRoute($route->getHttpMethod(), $uri, $key);
-                }
-                $this->routesIndex[$key][] = $route;
-            }
-        }
-        foreach ($this->routes->getRoutes() as $route) {
-            $uri = $route->getRoute();
-            $key = implode('_', (array)$route->getHttpMethod()).'_'.$uri;
-            if (!isset($this->routesIndex[$key])) {
-                $collector->addRoute($route->getHttpMethod(), $uri, $key);
-            }
-            $this->routesIndex[$key][] = $route;
-        }
-        
-        return $collector;
     }
 }

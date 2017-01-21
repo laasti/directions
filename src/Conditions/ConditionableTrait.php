@@ -12,10 +12,16 @@ trait ConditionableTrait
     {
         return $this->conditions;
     }
-    
+
     public function addCallableCondition(callable $callable)
     {
         return $this->addCondition(new CallableCondition($callable));
+    }
+
+    public function addCondition(ConditionInterface $condition)
+    {
+        $this->conditions[] = $condition;
+        return $this;
     }
 
     public function addBodyCondition($parameter, $value = null)
@@ -26,11 +32,5 @@ trait ConditionableTrait
     public function addQueryCondition($parameter, $value = null)
     {
         return $this->addCondition(new QueryParameterCondition($parameter, $value));
-    }
-
-    public function addCondition(ConditionInterface $condition)
-    {
-        $this->conditions[] = $condition;
-        return $this;
     }
 }

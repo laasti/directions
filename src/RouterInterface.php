@@ -16,12 +16,12 @@ interface RouterInterface
      * @return ServerRequestInterface
      */
     public function find(ServerRequestInterface $request, ResponseInterface $response);
-    
+
     /**
      * @return Response
      */
     public function findAndDispatch(ServerRequestInterface $request, ResponseInterface $response);
-    
+
     /**
      * @return Response
      */
