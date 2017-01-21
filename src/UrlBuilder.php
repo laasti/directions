@@ -20,19 +20,20 @@ class UrlBuilder
     public function getCurrentUri($host = false, $includeQueryParams = false)
     {
         if ($includeQueryParams) {
-            return (string) $this->request->getUri();
+            return (string)$this->request->getUri();
         }
 
         $url = '';
         if ($host) {
             $url .= $this->getHost();
         }
-        return rtrim($url, '/').'/'.ltrim($this->request->getUri()->getPath(), '/');
+        return rtrim($url, '/') . '/' . ltrim($this->request->getUri()->getPath(), '/');
     }
-    
-    public function create($format, $params = [], $host = false)
+
+    public function getHost()
     {
-        return rtrim($this->getBaseUri($host), '/').'/'.ltrim($this->parseUri($format, $params), '/');
+        $uri = $this->request->getUri();
+        return sprintf('%s://%s/', $uri->getScheme(), $uri->getAuthority());
     }
 
     public function createByName($name, $params = [], $host = false)
@@ -44,7 +45,28 @@ class UrlBuilder
         $route = $this->routes->getRouteByName($name);
 
         return $this->create($route->getRoute(), $params, $host);
+    }
 
+    public function create($format, $params = [], $host = false)
+    {
+        return rtrim($this->getBaseUri($host), '/') . '/' . ltrim($this->parseUri($format, $params), '/');
+    }
+
+    public function getBaseUri($host = false)
+    {
+        $server = $this->request->getServerParams();
+        $folder = '';
+        if (isset($server['SCRIPT_NAME'])) {
+            $folder = pathinfo($server['SCRIPT_NAME'], PATHINFO_DIRNAME);
+        } elseif (isset($server['PHP_SELF'])) {
+            $folder = pathinfo($server['PHP_SELF'], PATHINFO_DIRNAME);
+        }
+        $folder = str_replace('\\', '/', $folder);
+        if ($host) {
+            $host = $this->getHost();
+        }
+
+        return $host ? $host . ltrim($folder, '/') : $folder;
     }
 
     public function parseUri($uri, $params = [])
@@ -64,28 +86,4 @@ class UrlBuilder
 
         return $uri;
     }
-
-    public function getHost()
-    {
-        $uri = $this->request->getUri();
-        return sprintf('%s://%s/', $uri->getScheme(), $uri->getAuthority());
-    }
-
-    public function getBaseUri($host = false)
-    {
-        $server = $this->request->getServerParams();
-        $folder = '';
-        if (isset($server['SCRIPT_NAME'])) {
-            $folder = pathinfo($server['SCRIPT_NAME'], PATHINFO_DIRNAME);
-        } else if (isset($server['PHP_SELF'])) {
-            $folder = pathinfo($server['PHP_SELF'], PATHINFO_DIRNAME);
-        }
-        $folder = str_replace('\\', '/', $folder);
-        if ($host) {
-            $host = $this->getHost();
-        }
-        
-        return $host ? $host.ltrim($folder, '/') : $folder;
-    }
-
 }

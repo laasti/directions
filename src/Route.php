@@ -12,7 +12,7 @@ use Laasti\Directions\Strategies\StrategyInterface;
 class Route
 {
     use Conditions\ConditionableTrait;
-    
+
     protected $httpMethod;
     protected $route;
     protected $handler;
@@ -22,13 +22,13 @@ class Route
     protected $host;
     protected $middlewares = [];
     protected $attributes = [];
-    
+
     /**
      *
      * @var StrategyInterface
      */
     protected $strategy;
-    
+
     public function __construct($httpMethod, $route, $handler, StrategyInterface $strategy)
     {
         $this->httpMethod = $httpMethod;
@@ -37,7 +37,7 @@ class Route
         $this->strategy = $strategy;
         $this->group = new RoutesGroup($strategy);
     }
-    
+
     public function getHttpMethod()
     {
         return $this->httpMethod;
@@ -45,23 +45,34 @@ class Route
 
     public function getRoute()
     {
-        return $this->getGroup()->getPrefix().$this->route.$this->getGroup()->getSuffix();
+        return $this->getGroup()->getPrefix() . $this->route . $this->getGroup()->getSuffix();
+    }
+
+    public function getGroup()
+    {
+        return $this->group;
+    }
+
+    public function setGroup(RoutesGroup $group)
+    {
+        $this->group = $group;
+        return $this;
     }
 
     public function getHandler()
     {
         return $this->handler;
     }
-    
+
     public function getMiddlewares()
     {
         return $this->middlewares;
     }
-    
+
     public function setMiddlewares(array $middlewares)
     {
         $this->middlewares = $middlewares;
-        
+
         return $this;
     }
 
@@ -70,24 +81,24 @@ class Route
         return $this->strategy;
     }
 
-    public function callStrategy()
-    {
-        return $this->strategy->callRoute($this);
-    }
-
     public function setStrategy(StrategyInterface $strategy)
     {
         $this->strategy = $strategy;
         return $this;
     }
-    
+
+    public function callStrategy()
+    {
+        return $this->strategy->callRoute($this);
+    }
+
     public function pushMiddleware($middleware)
     {
         $this->middlewares[] = $middleware;
-        
+
         return $this;
     }
-    
+
     public function getAttributes()
     {
         return $this->attributes;
@@ -103,26 +114,21 @@ class Route
     {
         return isset($this->attributes[$attribute]) ? $this->attributes[$attribute] : $default;
     }
-    
+
     public function setAttribute($attribute, $value)
     {
         $this->attributes[$attribute] = $value;
         return $this;
     }
-    
+
     public function removeAttribute($attribute)
     {
         unset($this->attributes[$attribute]);
     }
-    
+
     public function hasAttribute($attribute)
     {
         return array_key_exists($attribute, $this->attributes);
-    }
-
-    public function setName($name)
-    {
-        $this->name = $name;
     }
 
     public function getName()
@@ -130,31 +136,25 @@ class Route
         return $this->name;
     }
 
+    public function setName($name)
+    {
+        $this->name = $name;
+    }
+
     public function getHost()
     {
         return $this->host ? $this->host : $this->getGroup()->getHost();
     }
 
-    public function getGroup()
+    public function setHost($host)
     {
-        return $this->group;
-    }
-
-    public function setGroup(RoutesGroup $group)
-    {
-        $this->group = $group;
+        $this->host = $host;
         return $this;
     }
 
     public function getScheme()
     {
         return $this->scheme ? $this->scheme : $this->getGroup()->getScheme();
-    }
-    
-    public function setHost($host)
-    {
-        $this->host = $host;
-        return $this;
     }
 
     public function setScheme($scheme)

@@ -2,7 +2,6 @@
 
 namespace Laasti\Directions;
 
-use Laasti\Directions\Locator;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
@@ -32,16 +31,16 @@ class Router implements RouterInterface
         return $this->routes;
     }
 
-    public function setLocator(Locator $locator)
-    {
-        $this->locator = $locator;
-        return $this;
-    }
-
     public function setRoutes(RouteCollection $routes)
     {
         $this->routes = $routes;
         $this->locator = new Locator($routes);
+        return $this;
+    }
+
+    public function setLocator(Locator $locator)
+    {
+        $this->locator = $locator;
         return $this;
     }
 
@@ -61,31 +60,6 @@ class Router implements RouterInterface
     public function createGroup($prefix = null, $suffix = null, $host = null, $scheme = null)
     {
         return $this->routes->addGroup($prefix, $suffix, $host, $scheme);
-    }
-
-    /**
-     *
-     * @param ServerRequestInterface
-     * @param ResponseInterface
-     * @return ServerRequestInterface
-     */
-    public function find(ServerRequestInterface $request, ResponseInterface $response, callable $next = null)
-    {
-        $route = $this->locator->find($request->getMethod(), $this->getPathInfo($request), $request);
-
-        $request = $request->withAttribute('pathinfo', $this->getPathInfo($request))
-                    ->withAttribute('basepath', $this->getBasePath($request))
-                    ->withAttribute('route', $route);
-
-        foreach ($route->getAttributes() as $name => $value) {
-            $request = $request->withAttribute($name, $value);
-        }
-
-        if (is_callable($next)) {
-            return $next($request, $response);
-        } else {
-            return $request;
-        }
     }
 
     /**
@@ -121,17 +95,33 @@ class Router implements RouterInterface
 
     /**
      *
-     * @param \Laasti\Directions\Route $route
+     * @param ServerRequestInterface
+     * @param ResponseInterface
+     * @return ServerRequestInterface
      */
-    public function dispatchRoute(Route $route)
+    public function find(ServerRequestInterface $request, ResponseInterface $response, callable $next = null)
     {
-        return $route->callStrategy();
+        $route = $this->locator->find($request->getMethod(), $this->getPathInfo($request), $request);
+
+        $request = $request->withAttribute('pathinfo', $this->getPathInfo($request))
+            ->withAttribute('basepath', $this->getBasePath($request))
+            ->withAttribute('route', $route);
+
+        foreach ($route->getAttributes() as $name => $value) {
+            $request = $request->withAttribute($name, $value);
+        }
+
+        if (is_callable($next)) {
+            return $next($request, $response);
+        } else {
+            return $request;
+        }
     }
 
     protected function getPathInfo(ServerRequestInterface $request)
     {
-		$base = $this->getBasePath($request);
-        return '/'.ltrim(preg_replace('/^'.preg_quote($base, '/').'/', '', $request->getUri()->getPath()), '/');
+        $base = $this->getBasePath($request);
+        return '/' . ltrim(preg_replace('/^' . preg_quote($base, '/') . '/', '', $request->getUri()->getPath()), '/');
     }
 
     protected function getBasePath(ServerRequestInterface $request)
@@ -140,4 +130,12 @@ class Router implements RouterInterface
         return $urlBuilder->getBaseUri();
     }
 
+    /**
+     *
+     * @param \Laasti\Directions\Route $route
+     */
+    public function dispatchRoute(Route $route)
+    {
+        return $route->callStrategy();
+    }
 }

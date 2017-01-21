@@ -1,18 +1,28 @@
 {
     "name": "laasti/directions",
     "description": "A HTTP message router using nikic's FastRoute.",
+    "type": "library",
     "license": "MIT",
     "authors": [
         {
             "name": "Sonia Marquette",
-            "email": "contact@nebulousweb.com"
+            "email": "contact@nebulousweb.com",
+            "homepage": "http://nebulousweb.com/",
+            "role": "Developer"
         }
     ],
+    "support": {
+        "issues": "https://github.com/laasti/directions/issues",
+        "wiki": "https://github.com/laasti/directions/wiki"
+    },
     "require": {
+        "php" : "~5.6|~7.0",
         "psr/http-message": "~1.0",
         "nikic/fast-route": "~0.6"
     },
     "require-dev": {
+        "phpunit/phpunit" : "~4.0||~5.0",
+        "squizlabs/php_codesniffer": "^2.3",
         "laasti/peels": "dev-master",
         "zendframework/zend-diactoros": "~1.3.3",
         "league/container": "~2.0.3",
@@ -24,6 +34,19 @@
     "autoload": {
         "psr-4": {
             "Laasti\\Directions\\": "src/"
+        }
+    },
+    "config": {
+        "sort-packages": true
+    },
+    "scripts": {
+        "test": "phpunit",
+        "check-style": "phpcs -p --standard=PSR2 --runtime-set ignore_errors_on_exit 1 --runtime-set ignore_warnings_on_exit 1 src tests",
+        "fix-style": "phpcbf -p --standard=PSR2 --runtime-set ignore_errors_on_exit 1 --runtime-set ignore_warnings_on_exit 1 src tests"
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-master": "1.0-dev"
         }
     }
 }
